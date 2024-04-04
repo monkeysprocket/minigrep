@@ -16,7 +16,26 @@ impl Config {
         let query = args[1].clone();
         let file_path = args[2].clone();
 
-        let ignore_case = env::var("IGNORE_CASE").is_ok();
+        let mut ignore_case = false;
+
+        if let Ok(ignore_case_env) = env::var("IGNORE_CASE") {
+            if ["1", "true", "yes"].contains(&ignore_case_env.as_str()) {
+                ignore_case = true;
+            }
+        }
+
+        if args.len() >= 5 {
+            let option = &args[3];
+
+            if option == "--ignore-case" {
+                let ignore_case_arg = &args[4];
+                if ["1", "true", "yes"].contains(&ignore_case_arg.as_str()) {
+                    ignore_case = true;
+                } else if ["0", "false", "no"].contains(&ignore_case_arg.as_str()) {
+                    ignore_case = false;
+                }
+            } 
+        }
     
         Ok(Config { query, file_path, ignore_case })
     }
