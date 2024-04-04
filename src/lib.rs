@@ -29,7 +29,7 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
+fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
     let mut results = Vec::new();
     
     for line in contents.lines() {
@@ -40,6 +40,8 @@ pub fn search<'a>(query: &str, contents: &'a str) -> Vec<&'a str> {
 
     results
 }
+
+
 
 
 #[cfg(test)]
