@@ -8,13 +8,20 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn build(args: &[String]) -> Result<Config, &'static str> {
-        if args.len() < 3 {
-            return Err("not enough arguments");
-        }
+    pub fn build(
+        mut args: impl Iterator<Item = String>
+    ) -> Result<Config, &'static str> {
+        args.next();  // first arg is just the name of the executable
         
-        let query = args[1].clone();
-        let file_path = args[2].clone();
+        let query = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a query string"),
+        };
+
+        let file_path = match args.next() {
+            Some(arg) => arg,
+            None => return Err("Didn't get a file path"),
+        };
 
         let mut ignore_case = false;
 
@@ -24,19 +31,24 @@ impl Config {
             }
         }
 
-        if args.len() >= 5 {
-            let option = &args[3];
-
-            if option == "--ignore-case" {
-                let ignore_case_arg = &args[4];
-                if ["1", "true", "yes"].contains(&ignore_case_arg.as_str()) {
-                    ignore_case = true;
-                } else if ["0", "false", "no"].contains(&ignore_case_arg.as_str()) {
-                    ignore_case = false;
+        match args.next() {
+            Some(opt) => {
+                if opt == "--ignore-case" {
+                    match args.next() {
+                        Some(arg) => {
+                            if ["1", "true", "yes"].contains(&arg.as_str()) {
+                                ignore_case = true;
+                            } else if ["0", "false", "no"].contains(&arg.as_str()) {
+                                ignore_case = false;
+                            }
+                        },
+                        None => (),
+                    };
                 }
-            } 
-        }
-    
+            },
+            None => ()
+        };
+
         Ok(Config { query, file_path, ignore_case })
     }
 }
